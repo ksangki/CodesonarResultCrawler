@@ -61,6 +61,7 @@ class CodeSonarResultCrawler:
         xml_contents = f.read()
         self._bs = BeautifulSoup(xml_contents)
 
+        # iterate all warnings and handle them
         warnings = self._bs('warning')
         for warning in warnings:
             wd = {}
@@ -96,6 +97,7 @@ class CodeSonarResultCrawler:
         success_count = 0
         fail_count = 0
         
+        #iterate all warining and download each html page
         for item in self._warning_list:
             print "\t(%d / %d) Downloading %s ..." % (current_count, total_count, item["cw_url"])
             req = urllib2.Request(item["cw_url"])
@@ -103,13 +105,14 @@ class CodeSonarResultCrawler:
                 res = self._opener.open(req)
                 success_count = success_count + 1
             except:
+                #if it fails to download a html, add it to fail list and handle it later
                 print "%s Fail to download" % (item["cw_url"])
                 self._fail_warning_list.append(item)
                 fail_count = fail_count + 1
                 continue
 
+            #read a html and save it
             c = res.read()            
-            
             f = open(item["cw_local_url"], "w")
             f.write(c)
             f.flush()
@@ -169,7 +172,8 @@ if __name__ == "__main__":
     if len(sys.argv) != 3:
         print_usage()
         os._exit(1)
-        
+
+    #get arguments
     project_name = sys.argv[1]
     input_xml = sys.argv[2]
     
